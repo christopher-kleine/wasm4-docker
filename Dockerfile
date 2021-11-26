@@ -1,5 +1,5 @@
 # Go
-FROM tinygo/tinygo:0.21.0
+FROM docker.io/tinygo/tinygo:0.21.0
 
 # WASM-4 and AssemblyScript 
 RUN apt install curl make npm -y
@@ -18,7 +18,7 @@ ENV WASI_SDK_PATH=/opt/wasi-sdk
 # Zig
 RUN curl -L https://ziglang.org/builds/zig-linux-x86_64-0.9.0-dev.1737+c42763f8c.tar.xz > zig.tar.xz
 RUN tar -xvf zig.tar.xz
-RUN mv -r zig-linux-x86_64-0.9.0-dev.1737+c42763f8c/* /usr/bin
+RUN mv zig-linux-x86_64-0.9.0-dev.1737+c42763f8c/* /usr/bin
 
 # D
 #RUN curl -L https://github.com/ldc-developers/ldc/releases/download/v1.28.0/ldc2-1.28.0-linux-x86_64.tar.xz > ldc.tar.xz
