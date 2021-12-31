@@ -10,17 +10,23 @@ Due to the size of the resulting image, it's not recommended to use this on PCs 
 
 ### Creating a project
 
-This image comes with wasm4 in version 1.1.0. Therefore the following languages are currently supported:
+This image comes with wasm4 in version 2.1.0. Therefore the following languages are currently supported:
 
 - AssemblyScript (`--as or --assemblyscript`)
 - C (`--c`)
+- D (`--d`)
 - Go (`--go`)
+- Nelua (`--nelua`)
+- Nim (`--nim`)
+- Odin (`--odin`)
 - Rust (`--rs or --rust`)
+- WebAssembly Text (`--wat`)
+- Zig (`--zig`)
 
 The command to initialize a project is `w4 init <LANGUAGE>`
 
 ```shell
-docker run --rm -v $PWD:/cart wasm4 w4 init --c
+docker run --rm -v $PWD:/cart wasm4 init --c
 ```
 
 To create a new subfolder, use `w4 new <LANGUAGE>` instead of `w4 init <LANGUAGE>`
@@ -35,9 +41,11 @@ docker run --rm -v $PWD:/cart -p 4444:4444 wasm4
 
 - [X] Install AssemblyScript
 - [X] Install C
-- [ ] Install D
+- [X] Install D
 - [X] Install Go and TinyGo
-- [ ] Install Nim
-- [ ] Install Odin
+- [X] Install Nelua
+- [X] Install Nim
+- [X] Install Odin
 - [X] Install Rust
+- [ ] Install WABT
 - [X] Install Zig

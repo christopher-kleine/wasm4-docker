@@ -1,36 +1,93 @@
-# Go
-FROM docker.io/tinygo/tinygo:0.21.0
+ARG WASI_VERSION=14
 
-# WASM-4 and AssemblyScript 
-RUN apt install curl make npm -y
-RUN npm install --global wasm4 assemblyscript binaryen
+# --- Step 1: Download and compile required packages and repositories ---
+FROM docker.io/archlinux:latest AS compiler
 
-# Rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-RUN /root/.cargo/bin/rustup default stable
-RUN /root/.cargo/bin/rustup target add wasm32-unknown-unknown
+WORKDIR /setup
 
-# C, Zig, Odin, D
-RUN curl -L https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-14/wasi-sdk_14.0_amd64.deb > wasi.deb
-RUN dpkg -i wasi.deb
+ARG WASI_VERSION
+ENV WASI_VERSION=$WASI_VERSION
+ENV WASI_VERSION_FULL=${WASI_VERSION}.0
+
+RUN pacman -Syu --noconfirm git curl go base-devel git gcc gdb llvm11 clang && \
+    curl -L https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-${WASI_VERSION}/wasi-sdk-${WASI_VERSION_FULL}-linux.tar.gz --output wasi-sdk.tar.gz && \
+    tar xvf wasi-sdk.tar.gz && \
+    # Go
+    curl -L https://github.com/tinygo-org/tinygo/releases/download/v0.21.0/tinygo0.21.0.linux-amd64.tar.gz --output tinygo.tar.gz && \
+    tar xvf tinygo.tar.gz && \
+    # Odin
+    git clone https://github.com/odin-lang/Odin && \
+    cd Odin && \
+    make && \
+    cd /setup && \
+    # Nelua
+    git clone https://github.com/edubart/nelua-lang.git && \
+    cd nelua-lang && \
+    make
+
+
+# --- Step 2: Prepare file bundles ---
+FROM scratch AS bundle
+
+ARG WASI_VERSION
+ENV WASI_VERSION=$WASI_VERSION
+ENV WASI_VERSION_FULL=${WASI_VERSION}.0
 ENV WASI_SDK_PATH=/opt/wasi-sdk
 
-# Zig
-RUN curl -L https://ziglang.org/builds/zig-linux-x86_64-0.9.0-dev.1737+c42763f8c.tar.xz > zig.tar.xz
-RUN tar -xvf zig.tar.xz
-RUN mv zig-linux-x86_64-0.9.0-dev.1737+c42763f8c/* /usr/bin
+    # Setup C/C++
+COPY --from=compiler /setup/wasi-sdk-${WASI_VERSION_FULL} /opt/wasi-sdk
 
-# D
-#RUN curl -L https://github.com/ldc-developers/ldc/releases/download/v1.28.0/ldc2-1.28.0-linux-x86_64.tar.xz > ldc.tar.xz
-#RUN curl -L https://s3.us-west-2.amazonaws.com/downloads.dlang.org/releases/2021/dmd_2.098.0-0_amd64.deb > dlang.deb
-#RUN tar -xvf ldc.tar.xz
-#RUN cp -r ldc2-1.28.0-linux-x86_64/* /
-#RUN dpkg -i dlang.deb
+    # Install Go
+COPY --from=compiler /setup/tinygo /opt/tinygo
 
-# Odin
+    # Install Nelua
+COPY --from=compiler /setup/nelua-lang/nelua /opt/nelua/nelua
+COPY --from=compiler /setup/nelua-lang/nelua-lua /opt/nelua/nelua-lua
+COPY --from=compiler /setup/nelua-lang/lib /opt/nelua/lib
+COPY --from=compiler /setup/nelua-lang/lualib /opt/nelua/lualib
 
-WORKDIR /cart
+    # Install Odin
+COPY --from=compiler /setup/Odin/odin /opt/odin/odin
+COPY --from=compiler /setup/Odin/core /opt/odin/core
+COPY --from=compiler /setup/Odin/shared /opt/odin/shared
 
-CMD ["w4", "watch", "--no-browser"]
+# Step 3: Install and configure compilers
+FROM docker.io/archlinux:latest
+
+WORKDIR /wasm4
+
+ARG WASI_VERSION
+ENV WASI_VERSION=$WASI_VERSION
+ENV WASI_VERSION_FULL=${WASI_VERSION}.0
+ENV WASI_SDK_PATH=/opt/wasi-sdk
+
+RUN pacman -Syu --noconfirm \
+    make which \
+    # AssemblyScript
+    npm \
+    # D
+    ldc dub lld \
+    # Go
+    go \
+    # Nim
+    nim nimble \
+    # Odin
+    llvm11 \
+    # Rust
+    rustup \
+    # Zig
+    zig \
+    && \
+    # Setup WASM-4, AssemblyScript and wasm-opt
+    npm install --global wasm4 assemblyscript binaryen \
+    && \
+    # Setup Rust
+    rustup update stable && rustup target add wasm32-unknown-unknown
+
+COPY --from=bundle /opt /opt
+ENV PATH="/opt/tinygo:/opt/nelua:/opt/odin:${PATH}"
+
+ENTRYPOINT [ "w4" ]
+CMD [ "watch" ]
 
 EXPOSE 4444
