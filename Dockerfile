@@ -9,22 +9,25 @@ ARG WASI_VERSION
 ENV WASI_VERSION=$WASI_VERSION
 ENV WASI_VERSION_FULL=${WASI_VERSION}.0
 
-RUN pacman -Syu --noconfirm git curl go base-devel git gcc gdb llvm11 clang && \
-    curl -L https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-${WASI_VERSION}/wasi-sdk-${WASI_VERSION_FULL}-linux.tar.gz --output wasi-sdk.tar.gz && \
-    tar xvf wasi-sdk.tar.gz && \
+RUN pacman -Syu --noconfirm git curl go base-devel git gcc gdb llvm11 clang unzip
+
+RUN curl -L https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-${WASI_VERSION}/wasi-sdk-${WASI_VERSION_FULL}-linux.tar.gz --output wasi-sdk.tar.gz && \
+    tar -xf wasi-sdk.tar.gz
+
     # Go
-    curl -L https://github.com/tinygo-org/tinygo/releases/download/v0.21.0/tinygo0.21.0.linux-amd64.tar.gz --output tinygo.tar.gz && \
-    tar xvf tinygo.tar.gz && \
+RUN curl -L https://github.com/tinygo-org/tinygo/releases/download/v0.21.0/tinygo0.21.0.linux-amd64.tar.gz --output tinygo.tar.gz && \
+    tar -xf tinygo.tar.gz
+
     # Odin
-    git clone https://github.com/odin-lang/Odin && \
-    cd Odin && \
-    make && \
-    cd /setup && \
+RUN curl -L https://github.com/odin-lang/Odin/releases/download/dev-2021-12/odin-ubuntu-amd64-dev-2021-12.zip --output odin.zip && \
+    unzip odin.zip && \
+    mv ubuntu_artifacts odin && \
+    chmod +x odin/odin
+
     # Nelua
-    git clone https://github.com/edubart/nelua-lang.git && \
+RUN git clone https://github.com/edubart/nelua-lang.git && \
     cd nelua-lang && \
     make
-
 
 # --- Step 2: Prepare file bundles ---
 FROM scratch AS bundle
@@ -47,9 +50,9 @@ COPY --from=compiler /setup/nelua-lang/lib /opt/nelua/lib
 COPY --from=compiler /setup/nelua-lang/lualib /opt/nelua/lualib
 
     # Install Odin
-COPY --from=compiler /setup/Odin/odin /opt/odin/odin
-COPY --from=compiler /setup/Odin/core /opt/odin/core
-COPY --from=compiler /setup/Odin/shared /opt/odin/shared
+COPY --from=compiler /setup/odin/odin /opt/odin/odin
+COPY --from=compiler /setup/odin/core /opt/odin/core
+COPY --from=compiler /setup/odin/shared /opt/odin/shared
 
 # Step 3: Install and configure compilers
 FROM docker.io/archlinux:latest
@@ -83,10 +86,13 @@ RUN pacman -Syu --noconfirm \
     && \
     # Setup Rust
     rustup update stable && rustup target add wasm32-unknown-unknown
+# Also for odin.
+RUN ln -s /usr/lib/libLLVM-11.so /usr/lib/libLLVM-11.so.1
 
 COPY --from=bundle /opt /opt
-ENV PATH="/opt/tinygo:/opt/nelua:/opt/odin:${PATH}"
+ENV PATH="/opt/tinygo/bin:/opt/nelua:/opt/odin:${PATH}"
 
+WORKDIR /cart
 ENTRYPOINT [ "w4" ]
 CMD [ "watch" ]
 
