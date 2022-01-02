@@ -86,10 +86,13 @@ RUN pacman -Syu --noconfirm \
     && \
     # Setup Rust
     rustup update stable && rustup target add wasm32-unknown-unknown
+# Also for odin.
+RUN ln -s /usr/lib/libLLVM-11.so /usr/lib/libLLVM-11.so.1
 
 COPY --from=bundle /opt /opt
-ENV PATH="/opt/tinygo:/opt/nelua:/opt/odin:${PATH}"
+ENV PATH="/opt/tinygo/bin:/opt/nelua:/opt/odin:${PATH}"
 
+WORKDIR /cart
 ENTRYPOINT [ "w4" ]
 CMD [ "watch" ]
 
