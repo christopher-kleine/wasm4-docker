@@ -1,0 +1,14 @@
+ARG WASI_VERSION=14
+
+FROM docker.io/archlinux:latest
+
+WORKDIR /cart
+
+RUN pacman -Syu --noconfirm npm make \
+    && \
+    npm install --global wasm4 binaryen
+
+ENTRYPOINT [ "w4" ]
+CMD [ "watch" ]
+
+EXPOSE 4444

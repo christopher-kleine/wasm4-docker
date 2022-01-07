@@ -1,0 +1,21 @@
+FROM docker.io/archlinux:latest AS downloader
+
+WORKDIR /setup
+
+RUN pacman -Syu --noconfirm git curl base-devel gcc gdb llvm11 clang
+
+RUN git clone https://github.com/edubart/nelua-lang.git && \
+    cd nelua-lang && \
+    make
+
+
+
+# Step 3: Install and configure compilers
+FROM docker.io/anihex/wasm4:2.1.0-c
+
+COPY --from=downloader /setup/nelua-lang/nelua /opt/nelua/nelua
+COPY --from=downloader /setup/nelua-lang/nelua-lua /opt/nelua/nelua-lua
+COPY --from=downloader /setup/nelua-lang/lib /opt/nelua/lib
+COPY --from=downloader /setup/nelua-lang/lualib /opt/nelua/lualib
+
+ENV PATH="/opt/nelua:${PATH}"
