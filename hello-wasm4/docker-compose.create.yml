@@ -1,48 +1,48 @@
 services:
   as:
-    image: anihex/wasm4:2.1.0-assemblyscript
+    image: anihex/wasm4:assemblyscript
     volumes:
       - ./:/cart
     command: ["new", "--as", "hello-as"]
 
   c:
-    image: anihex/wasm4:2.1.0-c
+    image: anihex/wasm4:c
     volumes:
       - ./:/cart
     command: ["new", "--c", "hello-c"]
 
   d:
-    image: anihex/wasm4:2.1.0-d
+    image: anihex/wasm4:d
     volumes:
       - ./:/cart
     command: ["new", "--d", "hello-d"]
 
   go:
-    image: anihex/wasm4:2.1.0-go
+    image: anihex/wasm4:go
     volumes:
       - ./:/cart
     command: ["new", "--go", "hello-go"]
 
   nelua:
-    image: anihex/wasm4:2.1.0-nelua
+    image: anihex/wasm4:nelua
     volumes:
       - ./:/cart
     command: ["new", "--nelua", "hello-nelua"]
 
   nim:
-    image: anihex/wasm4:2.1.0-nim
+    image: anihex/wasm4:nim
     volumes:
       - ./:/cart
     command: ["new", "--nim", "hello-nim"]
 
   odin:
-    image: anihex/wasm4:2.1.0-odin
+    image: anihex/wasm4:odin
     volumes:
       - ./:/cart
     command: ["new", "--odin", "hello-odin"]
 
   rust:
-    image: anihex/wasm4:2.1.0-rust
+    image: anihex/wasm4:rust
     volumes:
       - ./:/cart
     command: ["new", "--rust", "hello-rust"]
@@ -54,7 +54,7 @@ services:
   #   command: ["new", "--rust", "hello-wat"]
 
   zig:
-    image: anihex/wasm4:2.1.0-zig
+    image: anihex/wasm4:zig
     volumes:
       - ./:/cart
     command: ["new", "--zig", "hello-zig"]

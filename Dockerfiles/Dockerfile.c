@@ -1,6 +1,6 @@
 ARG WASI_VERSION=14
 
-FROM docker.io/anihex/wasm4:2.1.0-base AS downloader
+FROM docker.io/anihex/wasm4:base AS downloader
 
 WORKDIR /setup
 
@@ -15,7 +15,7 @@ RUN curl -L https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-$
 
 
 
-FROM docker.io/anihex/wasm4:2.1.0-base AS final
+FROM docker.io/anihex/wasm4:base AS final
 
 WORKDIR /cart
 

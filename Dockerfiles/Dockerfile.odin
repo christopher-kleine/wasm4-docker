@@ -11,7 +11,7 @@ RUN curl -L https://github.com/odin-lang/Odin/releases/download/dev-2021-12/odin
 
 
 
-FROM docker.io/anihex/wasm4:2.1.0-c
+FROM docker.io/anihex/wasm4:c
 
 COPY --from=downloader /setup/odin/odin /opt/odin/odin
 COPY --from=downloader /setup/odin/core /opt/odin/core

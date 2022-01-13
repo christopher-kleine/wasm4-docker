@@ -1,69 +1,69 @@
 services:
   as:
-    image: anihex/wasm4:2.1.0-assemblyscript
+    image: anihex/wasm4:assemblyscript
     ports:
       - 4440:4444
     volumes:
       - ./hello-as:/cart
 
   c:
-    image: anihex/wasm4:2.1.0-c
+    image: anihex/wasm4:c
     ports:
       - 4441:4444
     volumes:
       - ./hello-c:/cart
 
   d:
-    image: anihex/wasm4:2.1.0-d
+    image: anihex/wasm4:d
     ports:
       - 4442:4444
     volumes:
       - ./hello-d:/cart
 
   go:
-    image: anihex/wasm4:2.1.0-go
+    image: anihex/wasm4:go
     ports:
       - 4443:4444
     volumes:
       - ./hello-go:/cart
 
   nelua:
-    image: anihex/wasm4:2.1.0-nelua
+    image: anihex/wasm4:nelua
     ports:
       - 4444:4444
     volumes:
       - ./hello-nelua:/cart
 
   nim:
-    image: anihex/wasm4:2.1.0-nim
+    image: anihex/wasm4:nim
     ports:
       - 4445:4444
     volumes:
       - ./hello-nim:/cart
 
   odin:
-    image: anihex/wasm4:2.1.0-odin
+    image: anihex/wasm4:odin
     ports:
       - 4446:4444
     volumes:
       - ./hello-odin:/cart
 
   rust:
-    image: anihex/wasm4:2.1.0-rust
+    image: anihex/wasm4:rust
     ports:
       - 4447:4444
     volumes:
       - ./hello-rust:/cart
 
   # wat:
-  #   image: anihex/wasm4:2.1.0-wat
+  #   image: anihex/wasm4:wat
   #   ports:
   #     - 4448:4444
   #   volumes:
   #     - ./hello-wat:/cart
 
   zig:
-    image: anihex/wasm4:2.1.0-zig
+    image: anihex/wasm4:zig
     ports:
       - 4449:4444
     volumes:

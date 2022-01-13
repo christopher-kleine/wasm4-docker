@@ -9,7 +9,7 @@ RUN curl -L https://github.com/tinygo-org/tinygo/releases/download/v0.21.0/tinyg
 
 
 
-FROM docker.io/anihex/wasm4:2.1.0-base
+FROM docker.io/anihex/wasm4:base
 
 RUN pacman -Syu --noconfirm go
 
